@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>八本家 (Hachihonke) | 連鎖事業發展企劃</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Chosen Palette: Warm Amber & Zen Grey (Brand Colors: Amber Orange, Ink Black, Wash White) -->
+    <!-- Application Structure Plan: 
+        1. Hero Section: High-impact summary of the investment opportunity (ROI, Scale).
+        2. Market Strategy: Interactive cards explaining the "High CP Value" and "Location Strategy".
+        3. Financial Simulator: The core interactive element. A Chart.js visualization allowing users to "play" the 6-year growth timeline, demonstrating the rolling investment model.
+        4. Store & DX: Visual breakdown of the physical and digital advantages.
+        5. Franchise System: 3-column layout detailing the support structure.
+    -->
+    <!-- Visualization & Content Choices:
+        - Financials: Chart.js Bar (Revenue) + Line (Profit) combo chart. Interaction: "Play" button triggers a year-by-year animation, updating the side panel text to explain the "Rolling Investment" logic.
+        - Icons: Styled CSS typography/Unicode to avoid external SVG dependencies.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #fdfbf7; /* Warm off-white */
+            color: #1f2937; /* Gray-800 */
+        }
+        .brand-text {
+            color: #d97706; /* Amber-600 */
+        }
+        .bg-brand {
+            background-color: #d97706;
+        }
+        .bg-brand-light {
+            background-color: #fff7ed; /* Orange-50 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            max-height: 500px;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .step-connector {
+            position: absolute;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background-color: #e5e7eb;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-orange-200 selection:text-orange-900">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-orange-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold tracking-tight brand-text">八本家</span>
+                    <span class="ml-3 text-xs md:text-sm text-gray-500 border-l border-gray-300 pl-3">連鎖事業發展企劃</span>
+                </div>
+                <div class="hidden md:flex space-x-8 text-sm font-medium text-gray-600">
+                    <button onclick="scrollToId('strategy')" class="hover:text-amber-600 transition-colors">市場策略</button>
+                    <button onclick="scrollToId('financial')" class="hover:text-amber-600 transition-colors">財務模型</button>
+                    <button onclick="scrollToId('store')" class="hover:text-amber-600 transition-colors">營運與DX</button>
+                    <button onclick="scrollToId('franchise')" class="hover:text-amber-600 transition-colors">加盟體系</button>
+                </div>
+                <button onclick="scrollToId('financial')" class="md:hidden bg-brand text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-sm">
+                    看獲利
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="relative overflow-hidden bg-brand-light pt-16 pb-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <div class="inline-block px-4 py-1.5 rounded-full bg-orange-100 text-orange-700 text-sm font-semibold mb-6">
+                股東募資計畫書 2026
+            </div>
+            <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 tracking-tight mb-6">
+                打造<span class="brand-text">住商型平價精緻鍋物</span>新標竿
+            </h1>
+            <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-600 mb-10">
+                以數位化營運降低成本，以高 CP 值體驗搶佔市場。<br>
+                目標六年內達成全台六家直營，年營收突破 6,000 萬。
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 card-hover transition-all duration-300">
+                    <p class="text-sm text-gray-500 font-medium">預估淨利率</p>
+                    <p class="text-4xl font-bold brand-text mt-2">13-18%</p>
+                    <p class="text-xs text-gray-400 mt-1">高毛利控管 (55-61%)</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 card-hover transition-all duration-300">
+                    <p class="text-sm text-gray-500 font-medium">單店年營收目標</p>
+                    <p class="text-4xl font-bold text-gray-800 mt-2">1,000 萬</p>
+                    <p class="text-xs text-gray-400 mt-1">台幣 (NTD)</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-orange-100 card-hover transition-all duration-300">
+                    <p class="text-sm text-gray-500 font-medium">投資回收期</p>
+                    <p class="text-4xl font-bold text-gray-800 mt-2">18-24 <span class="text-lg">個月</span></p>
+                    <p class="text-xs text-gray-400 mt-1">滾動式展店策略</p>
+                </div>
+            </div>
+        </div>
+        <!-- Decorative background elements -->
+        <div class="absolute top-0 left-0 -ml-24 mt-24 w-64 h-64 rounded-full bg-orange-200 opacity-20 blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 -mr-24 mb-24 w-80 h-80 rounded-full bg-orange-300 opacity-20 blur-3xl"></div>
+    </div>
+
+    <!-- Strategy Section -->
+    <div id="strategy" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900">市場定位與核心策略</h2>
+                <p class="mt-4 text-lg text-gray-500 max-w-3xl mx-auto">
+                    我們不只是賣火鍋，而是銷售一種「精緻的日常」。透過精準定價與選址，建立強大的護城河。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- Product Strategy -->
+                <div class="bg-gray-50 rounded-2xl p-8 border border-gray-100 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 font-black text-9xl text-gray-300 select-none group-hover:scale-110 transition-transform">P</div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="w-2 h-8 bg-brand mr-3 rounded-full"></span>
+                        產品特色 (Product)
+                    </h3>
+                    <ul class="space-y-6">
+                        <li class="flex">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold">1</div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-bold text-gray-900">平價精緻定位</h4>
+                                <p class="text-gray-600">每鍋 NT$ 260 - 350，切中市場最大需求。</p>
+                            </div>
+                        </li>
+                        <li class="flex">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold">2</div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-bold text-gray-900">特色湯底區隔</h4>
+                                <p class="text-gray-600">招牌麻辣、熟成藥膳、特濃牛奶，建立口味記憶點。</p>
+                            </div>
+                        </li>
+                        <li class="flex">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold">3</div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-bold text-gray-900">超值感提升</h4>
+                                <p class="text-gray-600">白飯、麵食無限供應，提升顧客滿意度與 CP 值。</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Location Strategy -->
+                <div class="bg-gray-50 rounded-2xl p-8 border border-gray-100 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 font-black text-9xl text-gray-300 select-none group-hover:scale-110 transition-transform">L</div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="w-2 h-8 bg-gray-800 mr-3 rounded-full"></span>
+                        選址與成本 (Location)
+                    </h3>
+                    <div class="space-y-6">
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                            <h4 class="font-bold text-brand mb-2">住商混合型策略</h4>
+                            <p class="text-sm text-gray-600">
+                                優先選擇住商區域，平衡平日午餐（商務）與晚餐/假日（家庭）客流，避免離峰空窗，最大化坪效。
+                            </p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 text-center">
+                                <span class="block text-xs text-gray-400 mb-1">房租上限</span>
+                                <span class="block text-xl font-bold text-gray-800">8 萬 / 月</span>
+                            </div>
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 text-center">
+                                <span class="block text-xs text-gray-400 mb-1">總成本佔比</span>
+                                <span class="block text-xl font-bold text-brand">< 10%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Core Section (Interactive) -->
+    <div id="financial" class="py-20 bg-brand-light">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-10 text-center">
+                <span class="text-brand font-bold tracking-wider uppercase text-sm">Financial Projection</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-2">六年成長計畫：滾動式投資模型</h2>
+                <p class="mt-4 text-gray-600 max-w-3xl mx-auto">
+                    本計畫採用「母雞帶小雞」的穩健擴張模式。透過首店獲利驅動後續展店，在第六年實現規模化收益。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- Interaction Panel -->
+                <div class="lg:col-span-4 bg-white p-6 md:p-8 rounded-2xl shadow-lg border-t-4 border-brand relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-orange-100 rounded-bl-full -mr-4 -mt-4 z-0"></div>
+                    
+                    <div class="relative z-10">
+                        <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                            <span class="text-2xl mr-2">📊</span> 年度數據詳情
+                        </h3>
+
+                        <div id="year-display" class="mb-6">
+                            <span class="text-sm text-gray-500 uppercase tracking-wide">目前展示</span>
+                            <div class="text-4xl font-black text-gray-900 mt-1">第 <span id="current-year" class="text-brand">1</span> 年</div>
+                        </div>
+
+                        <div class="space-y-4 mb-8">
+                            <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                                <span class="text-gray-600">營運店數</span>
+                                <span class="font-bold text-xl" id="current-stores">1 家</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                                <span class="text-gray-600">預估年營收</span>
+                                <span class="font-bold text-xl text-gray-900" id="current-revenue">1,000 萬</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                                <span class="text-gray-600">預估淨利</span>
+                                <span class="font-bold text-xl text-green-600" id="current-profit">150 萬</span>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg mt-4">
+                                <span class="text-xs text-gray-400 font-bold uppercase block mb-1">年度策略重點</span>
+                                <p class="text-sm text-gray-800 font-medium leading-relaxed" id="current-note">獲利投入第二店預備金</p>
+                            </div>
+                        </div>
+
+                        <button id="play-btn" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 flex items-center justify-center shadow-lg transform active:scale-95">
+                            <span class="mr-2">▶</span> 播放成長演示 (Simulate)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chart Area -->
+                <div class="lg:col-span-8 bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-gray-700">營收與淨利成長趨勢圖</h3>
+                        <div class="flex space-x-4 text-xs">
+                            <div class="flex items-center"><span class="w-3 h-3 bg-orange-400 rounded-sm mr-1"></span> 年營收</div>
+                            <div class="flex items-center"><span class="w-3 h-3 bg-green-700 rounded-full mr-1"></span> 淨利</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="growthChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center text-xs text-gray-400">
+                        * 點擊圖表長條可查看該年度詳細策略
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Store & DX Section -->
+    <div id="store" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">空間美學與數位管理 (DX)</h2>
+                    <p class="text-gray-600 mb-8 text-lg leading-relaxed">
+                        我們的店面設計兼顧美學與坪效，並導入數位工具大幅降低人力成本，讓服務人員專注於最有價值的顧客互動。
+                    </p>
+                    
+                    <div class="space-y-8">
+                        <div class="flex group">
+                            <div class="flex-shrink-0">
+                                <div class="flex items-center justify-center h-14 w-14 rounded-xl bg-orange-50 text-orange-600 text-2xl font-bold border border-orange-100 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                                    📱
+                                </div>
+                            </div>
+                            <div class="ml-6">
+                                <h3 class="text-xl font-bold text-gray-900">QR Code 自動點餐系統</h3>
+                                <p class="mt-2 text-gray-500">
+                                    全面導入掃碼點餐，節省外場人力處理帶位、電話與點餐的時間。預估降低 10-15% 外場人力成本。
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex group">
+                            <div class="flex-shrink-0">
+                                <div class="flex items-center justify-center h-14 w-14 rounded-xl bg-gray-50 text-gray-600 text-2xl font-bold border border-gray-100 group-hover:bg-gray-800 group-hover:text-white transition-colors">
+                                    🏗️
+                                </div>
+                            </div>
+                            <div class="ml-6">
+                                <h3 class="text-xl font-bold text-gray-900">極簡工業風與成本優化</h3>
+                                <p class="mt-2 text-gray-500">
+                                    深灰底天花板搭配投射燈，減少昂貴木工。50 席以上座位規劃，確保營收週轉率。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Visual Layout Block -->
+                <div class="bg-gray-900 p-8 rounded-3xl shadow-2xl relative overflow-hidden text-white">
+                    <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-orange-500 rounded-full blur-3xl opacity-20"></div>
+                    <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-blue-500 rounded-full blur-3xl opacity-20"></div>
+                    
+                    <h3 class="text-center font-bold text-xl mb-8 tracking-widest">STORE LAYOUT MODEL</h3>
+                    
+                    <div class="grid grid-cols-2 gap-4 relative z-10">
+                        <!-- Kitchen -->
+                        <div class="col-span-2 bg-gray-800 border border-gray-700 p-4 rounded-xl text-center">
+                            <div class="text-orange-400 text-xs font-bold uppercase mb-1">Back of House</div>
+                            <div class="font-bold text-lg">高效能廚房 & 備料區</div>
+                            <div class="text-xs text-gray-500 mt-1">動線優化 / 集中產能</div>
+                        </div>
+                        
+                        <!-- Dining -->
+                        <div class="row-span-2 bg-gray-800 border border-gray-700 p-4 rounded-xl flex flex-col justify-center text-center">
+                            <div class="text-green-400 text-xs font-bold uppercase mb-1">Main Area</div>
+                            <div class="font-bold text-lg">用餐區</div>
+                            <div class="text-3xl font-bold my-2 text-gray-600">50+</div>
+                            <div class="text-xs text-gray-500">席位規劃</div>
+                        </div>
+                        
+                        <!-- Self Service -->
+                        <div class="bg-gray-800 border border-gray-700 p-4 rounded-xl text-center flex flex-col justify-center">
+                            <div class="text-blue-400 text-xs font-bold uppercase mb-1">Value Add</div>
+                            <div class="font-bold">無限自助吧</div>
+                            <div class="text-xs text-gray-500">白飯 / 麵食 / 醬料</div>
+                        </div>
+
+                        <!-- Entrance -->
+                        <div class="bg-orange-600 border border-orange-500 p-4 rounded-xl text-center flex flex-col justify-center shadow-lg">
+                            <div class="text-white text-xs font-bold uppercase mb-1">Digital Entry</div>
+                            <div class="font-bold">自助報到區</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Franchise Section -->
+    <div id="franchise" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900">總部加盟與供應鏈管理</h2>
+                <p class="mt-4 text-gray-500">
+                    建立強大的後勤支援體系，確保每一間「八本家」都能複製成功模式。
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border-t-4 border-gray-800 hover:shadow-md transition-shadow">
+                    <div class="text-4xl mb-4">💰</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">加盟財務結構</h3>
+                    <ul class="space-y-3 text-sm text-gray-600">
+                        <li class="flex justify-between border-b border-gray-100 pb-2">
+                            <span>加盟金</span>
+                            <span class="font-bold text-gray-900">NT$ 22 萬</span>
+                        </li>
+                        <li class="flex justify-between border-b border-gray-100 pb-2">
+                            <span>權利金</span>
+                            <span class="font-bold text-gray-900">NT$ 3,000 /月</span>
+                        </li>
+                        <li class="pt-2 text-xs text-gray-500">
+                            * 工程由總部統一發包，確保品質一致。
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border-t-4 border-brand hover:shadow-md transition-shadow">
+                    <div class="text-4xl mb-4">📣</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">品牌行銷維運</h3>
+                    <ul class="space-y-3 text-sm text-gray-600">
+                        <li class="flex items-start">
+                            <span class="mr-2 text-brand">•</span>
+                            <span>數位建設：官網與招商平台進駐。</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-2 text-brand">•</span>
+                            <span>推廣預算：總部每季提撥 <span class="font-bold text-gray-900">3 萬</span>。</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-2 text-brand">•</span>
+                            <span>統一文宣：全台一致視覺與廣告投放。</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border-t-4 border-gray-800 hover:shadow-md transition-shadow">
+                    <div class="text-4xl mb-4">🚚</div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">物流與擴張</h3>
+                    <ul class="space-y-3 text-sm text-gray-600">
+                        <li class="flex items-start">
+                            <span class="mr-2 text-gray-800">•</span>
+                            <span>供應鏈整合：總部直屬肉品配送。</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-2 text-gray-800">•</span>
+                            <span>直營門檻：營運滿一年無虧損即擴張。</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-2 text-gray-800">•</span>
+                            <span>規模經濟：集中採購降低單店成本。</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 py-12 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-6 md:mb-0">
+                <span class="text-2xl font-bold tracking-tight">八本家</span>
+                <p class="text-gray-400 text-sm mt-2">連鎖餐飲集團 | 台北總部</p>
+            </div>
+            <div class="text-center md:text-right">
+                <p class="text-gray-400 text-sm mb-4">邀您共同見證連鎖火鍋新霸主的誕生</p>
+                <button class="bg-brand hover:bg-orange-700 text-white font-bold py-2 px-6 rounded-full transition-colors text-sm">
+                    聯繫投資洽談
+                </button>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-gray-800 text-center text-xs text-gray-500">
+            &copy; 2026 八本家餐飲集團. 內部文件，僅供股東會議使用。
+        </div>
+    </footer>
+
+    <!-- JS Logic -->
+    <script>
+        // Financial Data
+        const financeData = [
+            { year: 1, stores: 1, revenue: 1000, profit: 150, note: "建立單店獲利模型，利潤投入第二店預備金" },
+            { year: 2, stores: 2, revenue: 2000, profit: 300, note: "第一家店回本，累積利潤投入第三店" },
+            { year: 3, stores: 3, revenue: 3000, profit: 450, note: "第二家店回本，品牌效應顯現，投入第四店" },
+            { year: 4, stores: 4, revenue: 4000, profit: 600, note: "第三家店回本，供應鏈議價能力提升，投入第五店" },
+            { year: 5, stores: 5, revenue: 5000, profit: 750, note: "第四家店回本，區域市佔率擴大，投入第六店" },
+            { year: 6, stores: 6, revenue: 6000, profit: 900, note: "全體店面回本，進入高速獲利收割期" }
+        ];
+
+        let chartInstance;
+        let animationInterval;
+
+        // Chart Initialization
+        function initChart() {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: financeData.map(d => `第 ${d.year} 年`),
+                    datasets: [
+                        {
+                            label: '預估年營收 (萬)',
+                            data: financeData.map(d => d.revenue),
+                            backgroundColor: 'rgba(217, 119, 6, 0.2)', // brand amber low opacity
+                            borderColor: 'rgba(217, 119, 6, 1)',
+                            borderWidth: 2,
+                            borderRadius: 4,
+                            order: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            type: 'line',
+                            label: '預估淨利 (萬)',
+                            data: financeData.map(d => d.profit),
+                            borderColor: '#15803d', // green-700
+                            backgroundColor: '#15803d',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#15803d',
+                            pointRadius: 6,
+                            pointHoverRadius: 9,
+                            tension: 0.3,
+                            order: 1,
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                afterBody: (tooltipItems) => {
+                                    const index = tooltipItems[0].dataIndex;
+                                    return `\n店數: ${financeData[index].stores} 家\n策略: ${financeData[index].note}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f3f4f6'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    onClick: (e, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            updateDashboard(index);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update Dashboard Text
+        function updateDashboard(index) {
+            const data = financeData[index];
+            
+            // Update Text
+            document.getElementById('current-year').textContent = data.year;
+            document.getElementById('current-stores').textContent = data.stores + " 家";
+            document.getElementById('current-revenue').textContent = data.revenue.toLocaleString() + " 萬";
+            document.getElementById('current-profit').textContent = data.profit.toLocaleString() + " 萬";
+            document.getElementById('current-note').textContent = data.note;
+
+            // Highlight Chart Bar visually (optional simple logic)
+            const newColors = financeData.map((_, i) => i === index ? 'rgba(217, 119, 6, 0.8)' : 'rgba(217, 119, 6, 0.2)');
+            chartInstance.data.datasets[0].backgroundColor = newColors;
+            chartInstance.update('none'); // Update without full animation
+        }
+
+        // Animation Loop
+        function playSimulation() {
+            const btn = document.getElementById('play-btn');
+            if (animationInterval) {
+                clearInterval(animationInterval);
+                animationInterval = null;
+                btn.innerHTML = '<span class="mr-2">▶</span> 播放成長演示 (Simulate)';
+                return;
+            }
+
+            btn.innerHTML = '<span class="mr-2">⏹</span> 停止演示 (Stop)';
+            let index = 0;
+            
+            // Immediate update for start
+            updateDashboard(index);
+
+            animationInterval = setInterval(() => {
+                index++;
+                if (index >= financeData.length) {
+                    clearInterval(animationInterval);
+                    animationInterval = null;
+                    btn.innerHTML = '<span class="mr-2">▶</span> 重播 (Replay)';
+                    return;
+                }
+                updateDashboard(index);
+            }, 1200); // 1.2 seconds per year
+        }
+
+        // Smooth Scroll
+        function scrollToId(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Init
+        window.addEventListener('load', () => {
+            initChart();
+            document.getElementById('play-btn').addEventListener('click', playSimulation);
+        });
+
+    </script>
+</body>
+</html>
